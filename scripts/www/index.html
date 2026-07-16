@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>埋线减肥 · 六维辨证系统 V7.0</title>
+    <title>埋线减肥 · 六维辨证系统 V8.0</title>
     <style>
         * {
             margin: 0;
@@ -1027,7 +1027,7 @@
 <div class="container">
 
     <div class="header-title no-print">
-        🧘 减重治疗配穴参考 · 六维辨证 V7.0
+        🧘 减重治疗配穴参考 · 六维辨证 V8.0
         <div class="sub">依据 T/CACM 024—2017 · 三层处方架构</div>
         <div class="contact">💡 如有建议，请联系：18623332180，259852528@qq.com</div>
     </div>
@@ -1089,7 +1089,6 @@
             <div class="contra-tag" data-contra="heart">❤️ 严重心脑血管病</div>
             <div class="contra-tag" data-contra="fever">🌡️ 发热/急性感染</div>
             <div class="contra-tag" data-contra="menstrual">🩸 月经期(慎用)</div>
-            <!-- 新增禁忌症：瘢痕体质 + 皮下组织修复功能低下 -->
             <div class="contra-tag" data-contra="scar">🧬 瘢痕体质</div>
             <div class="contra-tag" data-contra="repair">🔄 皮下组织修复功能低下</div>
         </div>
@@ -1124,10 +1123,8 @@
         <div class="tag-group" id="tongueGroup">
             <div class="tag" data-type="wei" data-score="3">舌质红 <span class="w">+3</span></div>
             <div class="tag" data-type="pi" data-score="3">舌质淡白 <span class="w">+3</span></div>
-            <!-- 修正：舌质紫暗/瘀点 仅归血瘀（原为肝郁+血瘀） -->
             <div class="tag" data-type="xue" data-score="3">舌质紫暗/瘀点 <span class="w">+3</span></div>
             <div class="tag" data-type="xue" data-score="3">舌质紫暗/瘀斑 <span class="w">+3</span></div>
-            <!-- 舌体胖大/齿痕：原仅痰湿，现增加脾虚（拆分标签） -->
             <div class="tag" data-type="tan,pi" data-score="2">舌体胖大/齿痕 <span class="w">+2</span></div>
             <div class="tag" data-type="shen" data-score="2">舌体胖大/淡嫩 <span class="w">+2</span></div>
             <div class="tag" data-type="wei" data-score="3">舌苔黄厚腻 <span class="w">+3</span></div>
@@ -1149,7 +1146,6 @@
             <div class="tag" data-type="pi" data-score="2">脉迟（慢）<span class="w">+2</span></div>
             <div class="tag" data-type="gan" data-score="3">脉弦 <span class="w">+3</span></div>
             <div class="tag" data-type="pi" data-score="2">脉细 <span class="w">+2</span></div>
-            <!-- 脉濡：痰湿 + 脾虚 -->
             <div class="tag" data-type="tan,pi" data-score="2">脉濡（软）<span class="w">+2</span></div>
             <div class="tag" data-type="xue" data-score="3">脉涩 <span class="w">+3</span></div>
         </div>
@@ -1191,6 +1187,10 @@
                 <div class="name" id="resTitle">综合辨证结果</div>
                 <div class="sub" id="resBadge">六维积分 · 主导证型</div>
                 <div class="desc" id="resDesc">基于舌、脉、腹、症、BMI/腰围、禁忌六维综合评定。</div>
+                <!-- 体质倾向参考行 -->
+                <div id="constitutionDisplay" style="margin-top:8px;font-size:14px;color:#1a3a6a;background:#e8f0fe;padding:6px 12px;border-radius:8px;display:none;">
+                    <strong>🧬 体质倾向参考：</strong><span id="constitutionType">—</span>
+                </div>
             </div>
 
             <div class="score-bars no-print" id="scoreBars">
@@ -1203,7 +1203,7 @@
             </div>
 
             <div id="tieHint" style="display:none;" class="tie-hint">
-                ⚖️ <strong>多证型积分接近</strong>，建议结合临床经验综合判断，灵活加减。
+                ⚖️ <strong>多证型积分接近</strong>，建议主证配穴与兼证配穴交替使用，或按主次比例选取。
             </div>
 
             <div id="totalCountDisplay" class="total-count">💡 本次推荐共 <span id="totalCount">0</span> 穴</div>
@@ -1332,20 +1332,28 @@
 
 <script>
     (function() {
-        // ===== 知识库（优化后） =====
-        // （一）辨证体系优化：修正舌象/脉象归属，支持多类型标签（逗号分隔）
-        // （二）穴位处方优化：主穴按共识修正（关元、滑肉门加入；气海、丰隆移出）
-        // （四）循证依据强化：增加证据等级与推荐强度标注
+        // ===== 知识库（V8.0 优化版） =====
+        // 证型名称改为共识全称；增加体质映射
         
         const COMMON_POINTS = [
             { name: '中脘', meridian: '任脉', side: '' },
             { name: '天枢', meridian: '足阳明', side: '双' },
             { name: '大横', meridian: '足太阴', side: '双' },
             { name: '带脉', meridian: '足少阳', side: '双' },
-            { name: '滑肉门', meridian: '足阳明', side: '双' },  // 新增
-            { name: '关元', meridian: '任脉', side: '' },        // 新增
+            { name: '滑肉门', meridian: '足阳明', side: '双' },
+            { name: '关元', meridian: '任脉', side: '' },
             { name: '足三里', meridian: '足阳明', side: '双' }
         ];
+
+        // 体质映射表
+        const CONSTITUTION_MAP = {
+            wei: '湿热质',
+            tan: '痰湿质',
+            pi: '气虚质',
+            gan: '气郁质',
+            shen: '阳虚质',
+            xue: '血瘀质'
+        };
 
         const SYNDROME = {
             wei: {
@@ -1358,7 +1366,7 @@
                     { name: '上巨虚', meridian: '足阳明', side: '双' }
                 ],
                 backPoints: [],
-                removePoints: ['足三里'],  // 共识明确“去足三里”
+                removePoints: ['足三里'],
                 logic: '胃肠实热，通降失和。通用主穴通腑降浊；加大肠俞、胃俞、手三里、上巨虚清泻阳明，去足三里防助热。',
                 evidence: '证据等级：1b，推荐意见：B'
             },
@@ -1574,7 +1582,7 @@
             return weight / (h * h);
         }
 
-        // 兼夹证阈值调整：20%以内视为兼夹（原为15%）
+        // 兼夹阈值20%
         function getDominant(scores) {
             const sorted = Object.entries(scores).filter(([k, v]) => v > 0).sort((a, b) => b[1] - a[1]);
             if (sorted.length === 0) return { dominant: 'wei', isTie: false, maxScore: 0 };
@@ -1763,7 +1771,7 @@
             }
         }
 
-        // ===== 分析主逻辑（整合全部优化） =====
+        // ===== 分析主逻辑 =====
         function analyze() {
             const sym = getScores('symptomGroup');
             const tongue = getScores('tongueGroup');
@@ -1811,11 +1819,23 @@
 
             updatePatientDisplay(bmi, bmiCat, waist, gender, age, height);
 
+            // 设置证型名称（已使用共识全称）
             document.getElementById('resTitle').textContent = data.name;
             const secondaryNames = secondary.length ? secondary.map(s => SYNDROME[s].name).join('、') : '无';
             document.getElementById('resBadge').textContent =
                 `主导积分 ${total[primary]} 分 · 兼夹: ${secondaryNames}`;
             document.getElementById('resDesc').textContent = data.desc;
+
+            // 体质倾向参考
+            const constiType = CONSTITUTION_MAP[primary] || '—';
+            const constiDisplay = document.getElementById('constitutionDisplay');
+            const constiSpan = document.getElementById('constitutionType');
+            if (constiType !== '—') {
+                constiDisplay.style.display = 'block';
+                constiSpan.textContent = constiType;
+            } else {
+                constiDisplay.style.display = 'none';
+            }
 
             const warnEl = document.getElementById('contraWarning');
             if (hasRealContra) {
@@ -1844,9 +1864,10 @@
                 }
             }
 
+            // 兼夹证提示（已包含建议文字）
             document.getElementById('tieHint').style.display = isTie ? 'block' : 'none';
 
-            // ---- 通用主穴（依据共识修正，含“去足三里”逻辑） ----
+            // ---- 通用主穴 ----
             let commonPoints = [...COMMON_POINTS];
             if (data.removePoints && data.removePoints.length > 0) {
                 commonPoints = commonPoints.filter(p => !data.removePoints.includes(p.name));
@@ -1909,7 +1930,7 @@
             });
             document.getElementById('detailContent').innerHTML = detailHtml || '<span style="color:#7a8ba0;font-size:13px;">无穴位详情</span>';
 
-            // ---- 辨证依据（含证据等级） ----
+            // ---- 辨证依据 ----
             const secondaryLogic = secondary.length ? '，兼夹「' + secondary.map(s => SYNDROME[s].name).join('、') + '」' : '';
             const logicDetail = `
                 <div class="dimension-scores">
@@ -1919,7 +1940,7 @@
                     <span>🤲 腹诊：胃热 ${abd.wei} | 痰湿 ${abd.tan} | 脾虚 ${abd.pi} | 肝郁 ${abd.gan} | 脾肾阳虚 ${abd.shen} | 气滞血瘀 ${abd.xue}</span>
                 </div>
                 <strong>综合判定：</strong>主导「${data.name}」${secondaryLogic}。
-                ${isTie ? '⚠️ 多证型积分接近，建议结合临床经验综合判断。' : ''}
+                ${isTie ? '⚠️ 多证型积分接近，建议主证配穴与兼证配穴交替使用，或按主次比例选取。' : ''}
                 ${hasRealContra ? '🚫 存在禁忌症，建议暂缓埋线治疗。' : ''}
                 <br><small style="color:#5a6f88;">治法：${data.logic}</small>
                 <br><small style="color:#5a6f88;background:#f0f4fa;padding:2px 6px;border-radius:4px;">🔬 ${data.evidence}</small>
@@ -1947,7 +1968,7 @@
         analyzeBtn.addEventListener('click', analyze);
 
         // ====================================================
-        // 打印功能（宣教、知情同意书、注意事项）——未改动UI，仅保留原样
+        // 打印功能（不变）
         // ====================================================
         function printContent(htmlContent, title, isTongyi) {
             var win = window.open('', '_blank');
